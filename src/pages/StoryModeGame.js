@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import Modal from '../components/Modal';
+import NumericKeypad from '../components/NumericKeypad';
 import { useGame } from '../contexts/GameContext';
 import { KINGDOMS, MAGIC_ITEMS } from '../utils/gameData';
 import { generateQuestion } from '../utils/questionGenerator';
@@ -10,7 +11,7 @@ import './StoryModeGame.css';
 export default function StoryModeGame() {
   const { kingdomId } = useParams();
   const navigate = useNavigate();
-  const { state, updateStoryMode } = useGame();
+  const { state, updateStoryMode, addMagicItem } = useGame();
   const { storyMode } = state;
 
   const kId = parseInt(kingdomId, 10);
@@ -25,14 +26,12 @@ export default function StoryModeGame() {
   const [question, setQuestion] = useState(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [modalConfig, setModalConfig] = useState(null); // { type: 'simple'|'big'|'end', data: {} }
+  const [modalConfig, setModalConfig] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
   const globalLevel = (kId - 1) * 4 + currentLevel;
   const isLastLevel = currentLevel === 4;
   const isLastQuestion = currentQuestion === 5;
-
-  const hasNewItem = MAGIC_ITEMS.some((item) => item.level === globalLevel);
 
   useEffect(() => {
     const q = generateQuestion(kId, currentLevel);
@@ -41,8 +40,13 @@ export default function StoryModeGame() {
     setFeedback(null);
   }, [kId, currentLevel, currentQuestion]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const grantItemForLevel = () => {
+    const item = MAGIC_ITEMS.find((i) => i.level === globalLevel);
+    if (item) addMagicItem(item.id);
+    return item || null;
+  };
+
+  const handleSubmit = () => {
     if (!userAnswer.trim() || !question) return;
 
     const correct = parseInt(userAnswer, 10) === question.answer;
@@ -51,50 +55,39 @@ export default function StoryModeGame() {
     if (correct) {
       setTimeout(() => {
         if (isLastQuestion) {
-          // All 5 questions done
           if (isLastLevel) {
-            // Kingdom complete!
-            const item = hasNewItem ? MAGIC_ITEMS.find((i) => i.level === globalLevel) : null;
-            const newUnlocked = item
-              ? [...storyMode.unlockedMagicItems, item.id]
-              : storyMode.unlockedMagicItems;
-            const nextKingdomId = kId + 1;
+            const item = grantItemForLevel();
+            const nextKingdomId = Math.min(4, kId + 1);
             const newCompletedKingdoms = isReplay
               ? storyMode.completedKingdoms
               : [...storyMode.completedKingdoms, kId];
 
             updateStoryMode({
               completedKingdoms: newCompletedKingdoms,
-              unlockedMagicItems: newUnlocked,
               unlockedKingdom: Math.max(storyMode.unlockedKingdom, nextKingdomId),
               currentKingdom: 1,
               currentLevel: 1,
               currentQuestion: 1,
             });
 
-            setModalConfig({ type: 'big', item });
+            setModalConfig({ type: 'big', item, replay: isReplay });
             setShowModal(true);
           } else {
-            // Level done, advance
             const nextLevel = currentLevel + 1;
             const nextGlobal = (kId - 1) * 4 + nextLevel;
-            const item = MAGIC_ITEMS.find((i) => i.level === globalLevel);
-            const newUnlocked = item
-              ? [...storyMode.unlockedMagicItems, item.id]
-              : storyMode.unlockedMagicItems;
+            const item = grantItemForLevel();
 
             updateStoryMode({
+              currentKingdom: kId,
               currentLevel: nextLevel,
               currentQuestion: 1,
-              unlockedMagicItems: newUnlocked,
               highestLevelUnlocked: Math.max(storyMode.highestLevelUnlocked, nextGlobal),
             });
 
-            setModalConfig({ type: 'simple', item, level: currentLevel });
+            setModalConfig({ type: 'simple', item, level: currentLevel, replay: isReplay });
             setShowModal(true);
           }
         } else {
-          // Next question
           const nextQ = currentQuestion + 1;
           setCurrentQuestion(nextQ);
           updateStoryMode({
@@ -104,12 +97,12 @@ export default function StoryModeGame() {
           });
         }
         setFeedback(null);
-      }, 600);
+      }, 900);
     } else {
       setTimeout(() => {
         setUserAnswer('');
         setFeedback(null);
-      }, 800);
+      }, 1400);
     }
   };
 
@@ -117,14 +110,11 @@ export default function StoryModeGame() {
     setShowModal(false);
     if (modalConfig?.type === 'big') {
       navigate('/modos/historia');
+    } else if (!isLastLevel) {
+      setCurrentLevel((l) => l + 1);
+      setCurrentQuestion(1);
     } else {
-      // Go to next level
-      if (!isLastLevel) {
-        setCurrentLevel((l) => l + 1);
-        setCurrentQuestion(1);
-      } else {
-        navigate('/modos/historia');
-      }
+      navigate('/modos/historia');
     }
   };
 
@@ -138,10 +128,10 @@ export default function StoryModeGame() {
   }
 
   return (
-    <div className="page story-game-page">
+    <div className="page story-game-page compact-page">
       <BackButton onClick={() => navigate('/modos/historia')} />
 
-      <div className="story-game-header">
+      <div className="story-game-header compact-header">
         <span className="sg-kingdom">{kingdom.emoji} {kingdom.name}</span>
         <span className="sg-level">Nível {currentLevel}/4</span>
       </div>
@@ -155,41 +145,45 @@ export default function StoryModeGame() {
         ))}
       </div>
 
-      <div className="question-card">
+      <div className="question-card compact-card">
         <span className="q-number">Pergunta {currentQuestion}/5</span>
         <span className="q-text">{question ? question.text : '...'}</span>
       </div>
 
-      <form className="answer-form" onSubmit={handleSubmit}>
-        <input
-          className={`answer-input ${feedback ? `feedback-${feedback}` : ''}`}
-          type="number"
-          placeholder="?"
-          value={userAnswer}
-          onChange={(e) => setUserAnswer(e.target.value)}
-          autoFocus
-        />
-        <button className="big-btn submit-btn" type="submit">
-          Responder ✓
-        </button>
-      </form>
+      <div className="answer-stage">
+        <div className="answer-form compact-answer-form stable-answer-form">
+          <input
+            className={`answer-input ${feedback ? `feedback-${feedback}` : ''}`}
+            type="text"
+            inputMode="none"
+            readOnly
+            placeholder="?"
+            value={userAnswer}
+          />
+          <div className="feedback-slot">
+            {feedback === 'correct' && <span className="feedback-correct">✅ Correcto!</span>}
+            {feedback === 'wrong' && <span className="feedback-wrong">❌ Tenta novamente!</span>}
+          </div>
+          <NumericKeypad
+            value={userAnswer}
+            onChange={setUserAnswer}
+            onSubmit={handleSubmit}
+            canSubmit={Boolean(userAnswer.trim())}
+            maxLength={4}
+          />
+        </div>
+      </div>
 
-      {feedback === 'correct' && <span className="feedback-correct">✅ Correto!</span>}
-      {feedback === 'wrong' && <span className="feedback-wrong">❌ Tenta novamente!</span>}
-
-      <Modal
-        open={showModal}
-        onClose={handleModalClose}
-        title="🎉 Parabéns! 🎉"
-        size={modalConfig?.type === 'big' ? 'large' : 'normal'}
-      >
+      <Modal open={showModal} onClose={handleModalClose} title="🎉 Parabéns! 🎉" size={modalConfig?.type === 'big' ? 'large' : 'normal'}>
         {modalConfig?.type === 'big' ? (
           <div className="big-modal-content">
             <p>Completaste o reino <strong>{kingdom.name}</strong>!</p>
             {modalConfig.item && (
               <div className="item-unlock">
                 <span className="item-unlock-emoji">{modalConfig.item.emoji}</span>
-                <p>Desbloqueaste: <strong>{modalConfig.item.name}</strong></p>
+                <p>
+                  {modalConfig.replay ? 'Reconquistaste' : 'Desbloqueaste'}: <strong>{modalConfig.item.name}</strong>
+                </p>
               </div>
             )}
             <button className="big-btn" onClick={handleModalClose}>Continuar ➡️</button>
@@ -200,7 +194,7 @@ export default function StoryModeGame() {
             {modalConfig?.item && (
               <div className="item-unlock-sm">
                 <span>{modalConfig.item.emoji}</span>
-                <span> Novo item: {modalConfig.item.name}!</span>
+                <span>{modalConfig.replay ? ' Item reconquistado: ' : ' Novo item: '}{modalConfig.item.name}!</span>
               </div>
             )}
             <button className="big-btn" onClick={handleModalClose}>Próximo Nível ➡️</button>

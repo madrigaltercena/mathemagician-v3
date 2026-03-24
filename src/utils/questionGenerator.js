@@ -33,13 +33,7 @@ export function generateQuestion(kingdomId, level) {
       answer = a + b;
   }
 
-  return {
-    a,
-    b,
-    op: opSymbol,
-    answer,
-    text: `${a} ${opSymbol} ${b} = ?`,
-  };
+  return { a, b, op: opSymbol, answer, text: `${a} ${opSymbol} ${b} = ?` };
 }
 
 export function generateFreeQuestion(operations) {
@@ -73,13 +67,7 @@ export function generateFreeQuestion(operations) {
       answer = a + b;
   }
 
-  return {
-    a,
-    b,
-    op: opSymbol,
-    answer,
-    text: `${a} ${opSymbol} ${b} = ?`,
-  };
+  return { a, b, op: opSymbol, answer, text: `${a} ${opSymbol} ${b} = ?` };
 }
 
 export function generateTouchculatorQuestion(operation) {
@@ -87,28 +75,25 @@ export function generateTouchculatorQuestion(operation) {
 
   switch (operation) {
     case 'addition':
-      a = randInt(1, 20);
-      b = randInt(1, 20);
+      a = randInt(1, 12);
+      b = randInt(1, 9);
       answer = a + b;
       break;
     case 'subtraction':
-      a = randInt(5, 30);
-      b = randInt(1, a);
+      a = randInt(6, 18);
+      b = randInt(1, Math.min(9, a - 1));
       answer = a - b;
       break;
     case 'multiplication':
-      a = randInt(2, 9);
-      b = randInt(1, 9);
+      a = randInt(2, 5);
+      b = randInt(2, 5);
       answer = a * b;
       break;
     case 'division':
-      b = randInt(2, 9);
-      answer = randInt(1, 9);
+      b = randInt(2, 5);
+      answer = randInt(2, 10);
       a = b * answer;
-      if (a > 50) {
-        a = b * Math.min(answer, Math.floor(50 / b));
-        answer = Math.floor(a / b);
-      }
+      if (answer > 10) answer = 10;
       break;
     default:
       a = randInt(1, 10);
@@ -125,7 +110,7 @@ export function getOperationSymbol(op) {
     case 'subtraction': return '-';
     case 'multiplication': return '×';
     case 'division': return '÷';
-    default: return '+';
+    default: return op;
   }
 }
 
