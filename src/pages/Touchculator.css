@@ -59,6 +59,23 @@
   width: 100%;
   cursor: pointer;
   outline: none;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.tc-game-shell:focus,
+.tc-game-shell:active {
+  outline: none;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tc-game-shell * {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tc-game {
@@ -67,6 +84,9 @@
   align-items: center;
   gap: 18px;
   width: 100%;
+  background: transparent !important;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .tc-question {

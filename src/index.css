@@ -21,6 +21,16 @@ button, input {
   font: inherit;
 }
 
+button,
+[role="button"],
+input,
+textarea,
+select,
+a {
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+}
+
 .page {
   position: relative;
   min-height: 100vh;

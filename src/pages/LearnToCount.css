@@ -37,6 +37,34 @@
   border: none;
   padding: 0;
   cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.count-tap-zone:focus,
+.count-tap-zone:active {
+  outline: none;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.count-tap-zone * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.count-game-page,
+.count-display {
+  background: transparent !important;
+}
+
+.count-game-page {
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .count-display {
@@ -45,6 +73,8 @@
   align-items: center;
   gap: 10px;
   width: 100%;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .transparent-game-surface {
