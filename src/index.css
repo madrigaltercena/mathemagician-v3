@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html, body, #root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -13,17 +17,38 @@ body {
   overflow-x: hidden;
 }
 
+button, input {
+  font: inherit;
+}
+
 .page {
   position: relative;
   min-height: 100vh;
   width: 100%;
 }
 
-/* Back button */
+.compact-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 72px 14px 18px;
+  gap: 12px;
+}
+
+.compact-shell {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
 .back-btn {
   position: fixed;
-  top: 16px;
-  left: 16px;
+  top: 12px;
+  left: 12px;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -31,7 +56,7 @@ body {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 30px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   color: white;
   font-size: 0.9rem;
   cursor: pointer;
@@ -49,7 +74,6 @@ body {
   font-size: 1.2rem;
 }
 
-/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -58,25 +82,25 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 16px;
   backdrop-filter: blur(5px);
 }
 
 .modal-box {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  padding: 30px;
+  border-radius: 24px;
+  padding: 22px 18px;
   max-width: 400px;
   width: 100%;
   text-align: center;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: modalIn 0.3s ease;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
 }
 
-.modal-large {
-  max-width: 500px;
-}
+.modal-large { max-width: 500px; }
 
 @keyframes modalIn {
   from { transform: scale(0.8) translateY(20px); opacity: 0; }
@@ -85,8 +109,8 @@ body {
 
 .modal-title {
   color: #ffd700;
-  margin: 0 0 20px;
-  font-size: 1.8rem;
+  margin: 0 0 16px;
+  font-size: 1.5rem;
   text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
@@ -94,20 +118,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-/* Big button */
 .big-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 20px;
-  padding: 16px 36px;
-  font-size: 1.2rem;
+  border-radius: 18px;
+  padding: 14px 24px;
+  font-size: 1.05rem;
   color: white;
   cursor: pointer;
   font-weight: bold;
-  font-family: inherit;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   transition: all 0.2s;
 }
@@ -122,90 +144,63 @@ body {
   cursor: not-allowed;
 }
 
-/* Shared styles */
-.magic-bg {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  z-index: -1;
-}
-
-.stars {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
-    radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 160px 120px, #fff, transparent);
-  background-size: 200px 200px;
-  animation: twinkle 4s ease-in-out infinite alternate;
-}
-
-@keyframes twinkle {
-  from { opacity: 0.6; }
-  to { opacity: 1; }
-}
-
-/* Shared question card styles */
 .question-card {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 30px 40px;
+  border-radius: 22px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  max-width: 400px;
+  max-width: 430px;
   backdrop-filter: blur(5px);
 }
 
+.compact-card {
+  padding: 16px 14px;
+}
+
 .q-number {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.82rem;
 }
 
 .q-text {
   color: #fff;
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 8vw, 2.6rem);
   font-weight: bold;
   text-align: center;
+  line-height: 1.05;
 }
 
-.answer-form {
+.answer-form, .compact-answer-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
-  max-width: 400px;
+  max-width: 430px;
 }
 
-.answer-input {
+.answer-input, .count-input {
   background: rgba(255, 255, 255, 0.15);
   border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  padding: 18px;
-  font-size: 2.5rem;
+  border-radius: 18px;
+  padding: 14px;
+  font-size: clamp(2rem, 7vw, 2.5rem);
   color: white;
   text-align: center;
   width: 100%;
-  max-width: 200px;
+  max-width: 220px;
   outline: none;
   transition: all 0.2s;
-  font-family: inherit;
   -moz-appearance: textfield;
 }
 
-.answer-input::-webkit-inner-spin-button,
-.answer-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-}
-
-.answer-input:focus {
+.answer-input:focus,
+.count-input:focus {
   border-color: #ffd700;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
@@ -221,22 +216,58 @@ body {
   animation: shake-wrong 0.4s ease;
 }
 
-.submit-btn {
+.numeric-keypad {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  max-width: 320px;
+}
+
+.numeric-keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.keypad-btn {
+  border: none;
+  border-radius: 16px;
+  min-height: 56px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 1.45rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+}
+
+.keypad-secondary {
+  background: rgba(245, 87, 108, 0.2);
+}
+
+.keypad-confirm {
+  background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
+}
+
+.keypad-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .feedback-correct {
   color: #7bed9f;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: bold;
   animation: pop 0.3s ease;
 }
 
 .feedback-wrong {
   color: #f5576c;
-  font-size: 1.1rem;
+  font-size: 1rem;
   animation: shake-wrong 0.4s ease;
+}
+
+.compact-progress {
+  width: 100%;
+  max-width: 430px;
 }
 
 @keyframes shake-wrong {
@@ -252,7 +283,6 @@ body {
   to { transform: scale(1); opacity: 1; }
 }
 
-/* Loading */
 .loading-screen {
   display: flex;
   align-items: center;
@@ -260,4 +290,13 @@ body {
   min-height: 100vh;
   font-size: 1.5rem;
   color: #ffd700;
+}
+
+@media (max-width: 420px) {
+  .compact-page { padding: 68px 10px 14px; gap: 10px; }
+  .back-btn { padding: 7px 12px; font-size: 0.82rem; }
+  .question-card { padding: 14px 12px; }
+  .modal-title { font-size: 1.3rem; }
+  .big-btn { padding: 12px 18px; font-size: 0.95rem; }
+  .keypad-btn { min-height: 50px; font-size: 1.25rem; }
 }

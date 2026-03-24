@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import Modal from '../components/Modal';
+import NumericKeypad from '../components/NumericKeypad';
 import { useGame } from '../contexts/GameContext';
-import { generateFreeQuestion, getOperationLabel, getOperationSymbol } from '../utils/questionGenerator';
+import { generateFreeQuestion } from '../utils/questionGenerator';
 import './FreeMode.css';
 
-const ALL_OPS = ['addition', 'subtraction', 'multiplication', 'division'];
+const ALL_OPS = ['+', '-', '×', '÷'];
 
 export default function FreeMode() {
   const navigate = useNavigate();
@@ -14,9 +15,9 @@ export default function FreeMode() {
   const [selectedOps, setSelectedOps] = useState(
     state.freeMode.lastSelectedOperations.length > 0
       ? state.freeMode.lastSelectedOperations
-      : ['addition']
+      : ['+']
   );
-  const [phase, setPhase] = useState('landing'); // 'landing' | 'playing' | 'end'
+  const [phase, setPhase] = useState('landing');
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
@@ -46,8 +47,7 @@ export default function FreeMode() {
 
   const currentQ = questions[currentIndex];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!userAnswer.trim() || !currentQ) return;
 
     const correct = parseInt(userAnswer, 10) === currentQ.answer;
@@ -64,12 +64,12 @@ export default function FreeMode() {
           setUserAnswer('');
           setFeedback(null);
         }
-      }, 600);
+      }, 450);
     } else {
       setTimeout(() => {
         setUserAnswer('');
         setFeedback(null);
-      }, 800);
+      }, 700);
     }
   };
 
@@ -84,16 +84,17 @@ export default function FreeMode() {
     setQuestions([]);
     setCurrentIndex(0);
     setCorrectCount(0);
+    setUserAnswer('');
   };
 
   if (phase === 'landing') {
     return (
-      <div className="page free-landing-page">
+      <div className="page free-landing-page compact-page">
         <BackButton onClick={() => navigate('/menu')} />
-        <div className="free-landing">
+        <div className="free-landing compact-shell">
           <span className="free-emoji">🎯</span>
           <h2>Modo Livre</h2>
-          <p>Escolhe as operações e completa 10 perguntas!</p>
+          <p>Escolhe as operações e completa 10 perguntas.</p>
 
           <div className="free-op-grid">
             {ALL_OPS.map((op) => (
@@ -102,8 +103,7 @@ export default function FreeMode() {
                 className={`free-op-btn ${selectedOps.includes(op) ? 'selected' : ''}`}
                 onClick={() => toggleOp(op)}
               >
-                <span className="free-op-symbol">{getOperationSymbol(op)}</span>
-                <span className="free-op-label">{getOperationLabel(op)}</span>
+                <span className="free-op-symbol">{op}</span>
               </button>
             ))}
           </div>
@@ -117,56 +117,49 @@ export default function FreeMode() {
   }
 
   return (
-    <div className="page free-game-page">
+    <div className="page free-game-page compact-page">
       <BackButton onClick={() => { setPhase('landing'); }} />
 
-      <div className="free-progress">
+      <div className="free-progress compact-progress">
         <span className="free-progress-text">{currentIndex + 1}/10</span>
         <div className="free-progress-bar">
-          <div
-            className="free-progress-fill"
-            style={{ width: `${((currentIndex) / 10) * 100}%` }}
-          />
+          <div className="free-progress-fill" style={{ width: `${(currentIndex / 10) * 100}%` }} />
         </div>
       </div>
 
-      <div className="question-card">
+      <div className="question-card compact-card">
         <span className="q-number">Pergunta {currentIndex + 1}/10</span>
         <span className="q-text">{currentQ ? currentQ.text : '...'}</span>
       </div>
 
-      <form className="answer-form" onSubmit={handleSubmit}>
+      <div className="answer-form compact-answer-form">
         <input
           className={`answer-input ${feedback ? `feedback-${feedback}` : ''}`}
-          type="number"
+          type="text"
+          inputMode="none"
+          readOnly
           placeholder="?"
           value={userAnswer}
-          onChange={(e) => setUserAnswer(e.target.value)}
-          autoFocus
         />
-        <button className="big-btn submit-btn" type="submit">
-          Responder ✓
-        </button>
-      </form>
+        <NumericKeypad
+          value={userAnswer}
+          onChange={setUserAnswer}
+          onSubmit={handleSubmit}
+          canSubmit={Boolean(userAnswer.trim())}
+          maxLength={4}
+        />
+      </div>
 
       {feedback === 'correct' && <span className="feedback-correct">✅ Correto!</span>}
       {feedback === 'wrong' && <span className="feedback-wrong">❌ Tenta novamente!</span>}
 
-      <Modal
-        open={showModal}
-        onClose={handleBack}
-        title="🎉 Terminaste! 🎉"
-      >
+      <Modal open={showModal} onClose={handleBack} title="🎉 Terminaste! 🎉">
         <div className="end-modal-content">
           <p className="score-big">{correctCount}/10</p>
           <p className="score-label">Respostas corretas!</p>
           <div className="modal-btns">
-            <button className="big-btn" onClick={handleRepeat}>
-              Repetir 🔄
-            </button>
-            <button className="big-btn" onClick={handleBack}>
-              Voltar 📚
-            </button>
+            <button className="big-btn" onClick={handleRepeat}>Repetir 🔄</button>
+            <button className="big-btn" onClick={handleBack}>Voltar 📚</button>
           </div>
         </div>
       </Modal>

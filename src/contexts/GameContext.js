@@ -21,9 +21,20 @@ const defaultState = {
     unlockedMagicItems: [],
   },
   freeMode: {
-    lastSelectedOperations: [],
+    lastSelectedOperations: ['+'],
   },
 };
+
+function normalizeItems(items) {
+  if (!Array.isArray(items)) return [];
+
+  return items.map((item) => {
+    if (typeof item === 'number') {
+      return { id: item, count: 1 };
+    }
+    return { ...item, count: item.count || 1 };
+  });
+}
 
 export function GameProvider({ children }) {
   const [state, setState] = useState(defaultState);
@@ -34,7 +45,19 @@ export function GameProvider({ children }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setState({ ...defaultState, ...parsed });
+        setState({
+          ...defaultState,
+          ...parsed,
+          storyMode: {
+            ...defaultState.storyMode,
+            ...parsed.storyMode,
+            unlockedMagicItems: normalizeItems(parsed.storyMode?.unlockedMagicItems),
+          },
+          freeMode: {
+            ...defaultState.freeMode,
+            ...parsed.freeMode,
+          },
+        });
       } catch {
         setState(defaultState);
       }
@@ -57,6 +80,25 @@ export function GameProvider({ children }) {
       storyMode: { ...s.storyMode, ...storyData },
     }));
 
+  const addMagicItem = (itemId) => {
+    setState((s) => {
+      const existing = s.storyMode.unlockedMagicItems.find((item) => item.id === itemId);
+      const unlockedMagicItems = existing
+        ? s.storyMode.unlockedMagicItems.map((item) =>
+            item.id === itemId ? { ...item, count: item.count + 1 } : item
+          )
+        : [...s.storyMode.unlockedMagicItems, { id: itemId, count: 1 }];
+
+      return {
+        ...s,
+        storyMode: {
+          ...s.storyMode,
+          unlockedMagicItems,
+        },
+      };
+    });
+  };
+
   const updateFreeMode = (freeData) =>
     setState((s) => ({
       ...s,
@@ -78,7 +120,16 @@ export function GameProvider({ children }) {
 
   return (
     <GameContext.Provider
-      value={{ state, isLoaded, updatePlayer, updateStoryMode, updateFreeMode, resetProgress, resetAll }}
+      value={{
+        state,
+        isLoaded,
+        updatePlayer,
+        updateStoryMode,
+        updateFreeMode,
+        addMagicItem,
+        resetProgress,
+        resetAll,
+      }}
     >
       {children}
     </GameContext.Provider>

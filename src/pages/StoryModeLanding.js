@@ -12,7 +12,8 @@ export default function StoryModeLanding() {
 
   const isKingdomUnlocked = (kingdomId) => kingdomId <= storyMode.unlockedKingdom;
   const isKingdomCompleted = (kingdomId) => storyMode.completedKingdoms.includes(kingdomId);
-  const isItemUnlocked = (itemId) => storyMode.unlockedMagicItems.includes(itemId);
+  const getItemData = (itemId) => storyMode.unlockedMagicItems.find((item) => item.id === itemId);
+  const isItemUnlocked = (itemId) => Boolean(getItemData(itemId));
 
   const handleKingdomClick = (kingdom) => {
     if (isKingdomUnlocked(kingdom.id)) {
@@ -21,7 +22,7 @@ export default function StoryModeLanding() {
   };
 
   return (
-    <div className="page story-landing-page">
+    <div className="page story-landing-page compact-page">
       <BackButton onClick={() => navigate('/menu')} />
       <h1 className="story-title">🏰 Modo História</h1>
       <p className="story-subtitle">Escolhe um reino para explorar!</p>
@@ -50,16 +51,17 @@ export default function StoryModeLanding() {
       <div className="magic-items-section">
         <h2 className="items-title">🪄 Itens Mágicos</h2>
         <div className="items-grid">
-          {MAGIC_ITEMS.map((item) => (
-            <div
-              key={item.id}
-              className={`magic-item ${isItemUnlocked(item.id) ? 'unlocked' : 'locked-item'}`}
-            >
-              <span className="item-emoji">{isItemUnlocked(item.id) ? item.emoji : '❓'}</span>
-              <span className="item-name">{isItemUnlocked(item.id) ? item.name : '???'}</span>
-              <span className="item-level">Nível {item.level}</span>
-            </div>
-          ))}
+          {MAGIC_ITEMS.map((item) => {
+            const unlockedItem = getItemData(item.id);
+            return (
+              <div key={item.id} className={`magic-item ${isItemUnlocked(item.id) ? 'unlocked' : 'locked-item'}`}>
+                <span className="item-emoji">{isItemUnlocked(item.id) ? item.emoji : '❓'}</span>
+                <span className="item-name">{isItemUnlocked(item.id) ? item.name : '???'}</span>
+                <span className="item-level">Nível {item.level}</span>
+                {unlockedItem && <span className="item-count">x{unlockedItem.count}</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
