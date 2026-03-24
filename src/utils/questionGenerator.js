@@ -1,4 +1,4 @@
-import { getDifficulty, randInt } from './gameData';
+import { randInt, getDifficulty } from './gameData';
 
 export function generateQuestion(kingdomId, level) {
   const diff = getDifficulty(kingdomId, level);
@@ -91,9 +91,8 @@ export function generateTouchculatorQuestion(operation) {
       break;
     case 'division':
       b = randInt(2, 5);
-      answer = randInt(2, 10);
-      a = b * answer;
-      if (answer > 10) answer = 10;
+      answer = randInt(2, 9);        // divisor × quociente = dividendo (todo ≤ 45)
+      a = b * answer;                 // garantido: a = b × answer, nunca quebra
       break;
     default:
       a = randInt(1, 10);
