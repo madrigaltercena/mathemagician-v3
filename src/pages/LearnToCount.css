@@ -1,0 +1,144 @@
+.count-landing-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+.count-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 40px;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+}
+
+.count-landing-emoji {
+  font-size: 4rem;
+}
+
+.count-landing h2 {
+  color: #4facfe;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.count-landing p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.count-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 15px 25px;
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+  width: 200px;
+  outline: none;
+}
+
+.count-input:focus {
+  border-color: #4facfe;
+}
+
+.count-input::-webkit-inner-spin-button,
+.count-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.count-game-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  cursor: pointer;
+  position: relative;
+}
+
+.count-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.count-number {
+  font-size: 8rem;
+  color: #4facfe;
+  text-shadow: 0 0 40px rgba(79, 172, 254, 0.5);
+  line-height: 1;
+  transition: transform 0.1s;
+}
+
+.count-text {
+  font-size: 1.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: capitalize;
+}
+
+.count-hint {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 20px;
+}
+
+.reward-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  margin-top: 10px;
+}
+
+.modal-text {
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  font-size: 1.1rem;
+  margin: 0 0 10px;
+}
+
+.reward-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 200;
+  animation: fadeIn 0.5s ease;
+}
+
+.reward-emoji {
+  font-size: 6rem;
+  animation: bounce 0.6s ease infinite alternate;
+}
+
+.reward-overlay p {
+  color: #ffd700;
+  font-size: 1.5rem;
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bounce {
+  from { transform: scale(1); }
+  to { transform: scale(1.2); }
+}

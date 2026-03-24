@@ -1,0 +1,92 @@
+.start-menu-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 30px 20px;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 24px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.player-avatar {
+  font-size: 2.5rem;
+}
+
+.player-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name {
+  color: #ffd700;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.player-title {
+  color: #a0c4ff;
+  font-size: 0.9rem;
+}
+
+.menu-title {
+  color: #fff;
+  font-size: 1.8rem;
+  text-align: center;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.mode-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s;
+  color: white;
+  backdrop-filter: blur(5px);
+}
+
+.mode-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--card-color);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px var(--card-color);
+}
+
+.mode-emoji {
+  font-size: 2.8rem;
+}
+
+.mode-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.mode-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
