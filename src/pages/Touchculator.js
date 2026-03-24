@@ -42,6 +42,7 @@ export default function Touchculator() {
   const [question, setQuestion] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [readyToSubmit, setReadyToSubmit] = useState(false);
 
   const startGame = (op) => {
     const q = generateTouchculatorQuestion(op);
@@ -49,10 +50,11 @@ export default function Touchculator() {
     setQuestion(q);
     setCurrentStep(0);
     setShowModal(false);
+    setReadyToSubmit(false);
   };
 
   const handleTap = () => {
-    if (!question) return;
+    if (!question || readyToSubmit) return;
     const targetSteps = getTargetSteps(question, selectedOp);
     if (currentStep >= targetSteps) return;
 
@@ -60,7 +62,7 @@ export default function Touchculator() {
     setCurrentStep(nextStep);
 
     if (nextStep === targetSteps) {
-      setTimeout(() => setShowModal(true), 300);
+      setReadyToSubmit(true);
     }
   };
 
@@ -74,6 +76,7 @@ export default function Touchculator() {
     setQuestion(null);
     setCurrentStep(0);
     setShowModal(false);
+    setReadyToSubmit(false);
   };
 
   if (!selectedOp) {
@@ -103,27 +106,48 @@ export default function Touchculator() {
   return (
     <div className="page touchculator-game-page compact-page">
       <BackButton onClick={handleBack} />
-      <button type="button" className="tc-game tc-tap-surface" onClick={handleTap}>
-        <div className="tc-op-badge">{getOperationSymbol(selectedOp)}</div>
-        <div className="tc-question">
-          <span className="tc-a">{question.a}</span>
-          <span className="tc-op">{getOperationSymbol(selectedOp)}</span>
-          <span className="tc-b">{question.b}</span>
-          <span className="tc-eq">=</span>
-          <span className="tc-target">?</span>
-        </div>
+      <div className="tc-game-shell" onClick={handleTap} role="button" tabIndex={0} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTap()}>
+        <div className="tc-game transparent-game-surface">
+          <div className="tc-question">
+            <span className="tc-a">{question.a}</span>
+            <span className="tc-op">{getOperationSymbol(selectedOp)}</span>
+            <span className="tc-b">{question.b}</span>
+            <span className="tc-eq">=</span>
+            <span className="tc-target">?</span>
+          </div>
 
-        <div className="circles-area">
-          {Array.from({ length: visualCount }, (_, i) => (
-            <div key={i} className="circle" />
-          ))}
-        </div>
+          <div className="circles-area">
+            {Array.from({ length: visualCount }, (_, i) => (
+              <div key={i} className="circle" />
+            ))}
+          </div>
 
-        <div className="tc-counter">
-          <span className="tc-current">{currentStep}/{targetSteps}</span>
-          <span className="tc-hint">Toque para avançar</span>
+          <div className="tc-counter">
+            <span className="tc-current">{currentStep}/{targetSteps}</span>
+            <span className="tc-hint">Toque em qualquer zona para avançar</span>
+          </div>
+
+          <div className="tc-submit-zone">
+            {readyToSubmit ? (
+              <>
+                <div className="tc-checkmark">✓</div>
+                <button
+                  type="button"
+                  className="big-btn tc-submit-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowModal(true);
+                  }}
+                >
+                  Submeter
+                </button>
+              </>
+            ) : (
+              <div className="tc-submit-placeholder" />
+            )}
+          </div>
         </div>
-      </button>
+      </div>
 
       <Modal open={showModal} onClose={() => setShowModal(false)} title="🎉 Parabéns! 🎉">
         <p className="tc-result">

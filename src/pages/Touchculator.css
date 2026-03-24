@@ -12,26 +12,15 @@
   align-items: center;
   gap: 20px;
   background: rgba(255, 255, 255, 0.08);
-  padding: 40px;
+  padding: 28px 20px;
   border-radius: 30px;
   border: 2px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(5px);
 }
 
-.tc-emoji {
-  font-size: 4rem;
-}
-
-.touchculator-landing h2 {
-  color: #f093fb;
-  margin: 0;
-  font-size: 1.8rem;
-}
-
-.touchculator-landing p {
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
-}
+.tc-emoji { font-size: 4rem; }
+.touchculator-landing h2 { color: #f093fb; margin: 0; font-size: 1.8rem; }
+.touchculator-landing p { color: rgba(255, 255, 255, 0.8); margin: 0; }
 
 .op-grid {
   display: grid;
@@ -54,79 +43,44 @@
   color: white;
 }
 
-.op-btn:hover {
-  border-color: #f093fb;
-  background: rgba(240, 147, 251, 0.15);
-  transform: translateY(-2px);
-}
-
-.op-symbol {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #f093fb;
-}
-
-.op-label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
-}
+.op-symbol { font-size: 2rem; font-weight: bold; color: #f093fb; }
+.op-label { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); }
 
 .touchculator-game-page {
+  align-items: stretch;
+  user-select: none;
+}
+
+.tc-game-shell {
+  flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  width: 100%;
   cursor: pointer;
-  user-select: none;
+  outline: none;
 }
 
 .tc-game {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  animation: fadeInUp 0.3s ease;
-}
-
-.tc-op-badge {
-  background: rgba(240, 147, 251, 0.2);
-  border: 2px solid #f093fb;
-  color: #f093fb;
-  font-size: 1.5rem;
-  font-weight: bold;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 18px;
+  width: 100%;
 }
 
 .tc-question {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 8vw, 2.5rem);
   color: white;
 }
 
-.tc-a, .tc-b {
-  color: #f093fb;
-}
-
-.tc-op {
-  color: #ffd700;
-}
-
-.tc-eq {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.tc-target {
-  color: #7bed9f;
-  font-size: 3rem;
-}
+.tc-a, .tc-b { color: #f093fb; }
+.tc-op { color: #ffd700; }
+.tc-eq { color: rgba(255, 255, 255, 0.5); }
+.tc-target { color: #7bed9f; font-size: clamp(2.4rem, 9vw, 3rem); }
 
 .circles-area {
   display: flex;
@@ -134,7 +88,9 @@
   justify-content: center;
   gap: 8px;
   max-width: 400px;
-  min-height: 80px;
+  min-height: 100px;
+  padding: 4px 0;
+  background: transparent;
 }
 
 .circle {
@@ -147,7 +103,7 @@
 }
 
 @keyframes circlePop {
-  from { transform: scale(0); opacity: 0; }
+  from { transform: scale(0.86); opacity: 0.4; }
   to { transform: scale(1); opacity: 1; }
 }
 
@@ -158,16 +114,35 @@
   gap: 4px;
 }
 
-.tc-current {
-  font-size: 3rem;
-  color: #7bed9f;
-  font-weight: bold;
+.tc-current { font-size: 3rem; color: #7bed9f; font-weight: bold; }
+.tc-hint { font-size: 0.92rem; color: rgba(255, 255, 255, 0.45); text-align: center; }
+
+.tc-submit-zone {
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.tc-hint {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.4);
+.tc-submit-placeholder { height: 110px; }
+
+.tc-checkmark {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(34, 197, 94, 0.15);
+  border: 2px solid #22c55e;
+  color: #7bed9f;
+  font-size: 1.8rem;
+  font-weight: 800;
 }
+
+.tc-submit-btn { min-width: 160px; }
 
 .tc-result {
   color: white;

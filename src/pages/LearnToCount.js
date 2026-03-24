@@ -74,13 +74,19 @@ export default function LearnToCount() {
   return (
     <div className="page count-game-page compact-page">
       <BackButton onClick={() => { setStarted(false); setCount(1); }} />
-      <button type="button" className="count-tap-zone" onClick={handleTap}>
-        <div className="count-display">
+      <div
+        className="count-tap-zone"
+        onClick={handleTap}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTap()}
+      >
+        <div className="count-display transparent-game-surface">
           <span className="count-number">{count}</span>
           <span className="count-text">{numberToPortuguese(count)}</span>
-          <span className="count-hint">Toque para +1</span>
+          <span className="count-hint">Toque em qualquer zona para +1</span>
         </div>
-      </button>
+      </div>
 
       <Modal open={showModal} onClose={() => setShowModal(false)} title="🎉 Parabéns! 🎉">
         <p className="modal-text">

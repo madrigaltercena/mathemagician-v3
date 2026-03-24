@@ -11,58 +11,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   background: rgba(255, 255, 255, 0.08);
-  padding: 40px;
+  padding: 28px 20px;
   border-radius: 30px;
   border: 2px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(5px);
 }
 
-.count-landing-emoji {
-  font-size: 4rem;
-}
-
-.count-landing h2 {
-  color: #4facfe;
-  margin: 0;
-  font-size: 1.8rem;
-}
-
-.count-landing p {
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
-}
-
-.count-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 15px;
-  padding: 15px 25px;
-  font-size: 1.5rem;
-  color: white;
-  text-align: center;
-  width: 200px;
-  outline: none;
-}
-
-.count-input:focus {
-  border-color: #4facfe;
-}
-
-.count-input::-webkit-inner-spin-button,
-.count-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-}
+.count-landing-emoji { font-size: 4rem; }
+.count-landing h2 { color: #4facfe; margin: 0; font-size: 1.8rem; }
+.count-landing p { color: rgba(255, 255, 255, 0.8); margin: 0; text-align: center; }
 
 .count-game-page {
+  align-items: stretch;
+}
+
+.count-tap-zone {
+  flex: 1;
+  width: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  background: transparent;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  position: relative;
 }
 
 .count-display {
@@ -70,27 +44,34 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  animation: fadeInUp 0.3s ease;
+  width: 100%;
+}
+
+.transparent-game-surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  backdrop-filter: none !important;
 }
 
 .count-number {
-  font-size: 8rem;
+  font-size: clamp(5rem, 24vw, 8rem);
   color: #4facfe;
   text-shadow: 0 0 40px rgba(79, 172, 254, 0.5);
   line-height: 1;
-  transition: transform 0.1s;
 }
 
 .count-text {
-  font-size: 1.8rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1.35rem, 5vw, 1.9rem);
+  color: rgba(255, 255, 255, 0.95);
   text-transform: capitalize;
+  text-align: center;
 }
 
 .count-hint {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 20px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 14px;
 }
 
 .reward-btn {
@@ -126,11 +107,6 @@
 .reward-overlay p {
   color: #ffd700;
   font-size: 1.5rem;
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes fadeIn {

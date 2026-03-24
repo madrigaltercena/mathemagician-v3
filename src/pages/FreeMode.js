@@ -64,12 +64,12 @@ export default function FreeMode() {
           setUserAnswer('');
           setFeedback(null);
         }
-      }, 450);
+      }, 900);
     } else {
       setTimeout(() => {
         setUserAnswer('');
         setFeedback(null);
-      }, 700);
+      }, 1400);
     }
   };
 
@@ -132,26 +132,29 @@ export default function FreeMode() {
         <span className="q-text">{currentQ ? currentQ.text : '...'}</span>
       </div>
 
-      <div className="answer-form compact-answer-form">
-        <input
-          className={`answer-input ${feedback ? `feedback-${feedback}` : ''}`}
-          type="text"
-          inputMode="none"
-          readOnly
-          placeholder="?"
-          value={userAnswer}
-        />
-        <NumericKeypad
-          value={userAnswer}
-          onChange={setUserAnswer}
-          onSubmit={handleSubmit}
-          canSubmit={Boolean(userAnswer.trim())}
-          maxLength={4}
-        />
+      <div className="answer-stage">
+        <div className="answer-form compact-answer-form stable-answer-form">
+          <input
+            className={`answer-input ${feedback ? `feedback-${feedback}` : ''}`}
+            type="text"
+            inputMode="none"
+            readOnly
+            placeholder="?"
+            value={userAnswer}
+          />
+          <div className="feedback-slot">
+            {feedback === 'correct' && <span className="feedback-correct">✅ Correcto!</span>}
+            {feedback === 'wrong' && <span className="feedback-wrong">❌ Tenta novamente!</span>}
+          </div>
+          <NumericKeypad
+            value={userAnswer}
+            onChange={setUserAnswer}
+            onSubmit={handleSubmit}
+            canSubmit={Boolean(userAnswer.trim())}
+            maxLength={4}
+          />
+        </div>
       </div>
-
-      {feedback === 'correct' && <span className="feedback-correct">✅ Correto!</span>}
-      {feedback === 'wrong' && <span className="feedback-wrong">❌ Tenta novamente!</span>}
 
       <Modal open={showModal} onClose={handleBack} title="🎉 Terminaste! 🎉">
         <div className="end-modal-content">
