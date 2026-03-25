@@ -16,6 +16,7 @@ const SubmitState = {
 
 const HINTS = {
   default: 'Toque em qualquer zona para avançar',
+  readyToSubmit: 'Toque para submeter resultado',
   division: {
     0: 'Confirma as colunas',
     1: 'Submeter resultado',
@@ -38,7 +39,7 @@ function getVisualCount(question, operation, step) {
     case 'subtraction':
       return Math.max(question.a - step, question.answer);
     default:
-      return 0;
+      throw new Error(`Unknown operation: ${operation}`);
   }
 }
 
@@ -101,19 +102,24 @@ export default function Touchculator() {
   const selectedOpRef = useRef(null);
   const isTappingRef = useRef(false);
   const fadeTimeoutRef = useRef(null);
+  const tapTimeoutsRef = useRef([]);
 
   useEffect(() => { questionRef.current = question; }, [question]);
   useEffect(() => { selectedOpRef.current = selectedOp; }, [selectedOp]);
 
   const releaseTap = useCallback((delay = 80) => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       isTappingRef.current = false;
+      tapTimeoutsRef.current = tapTimeoutsRef.current.filter((id) => id !== timeoutId);
     }, delay);
+    tapTimeoutsRef.current.push(timeoutId);
   }, []);
 
   useEffect(() => {
     return () => {
       if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+      tapTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      tapTimeoutsRef.current = [];
     };
   }, []);
 
@@ -201,6 +207,15 @@ export default function Touchculator() {
     }
 
     if (op === 'division' && currentStep === 1) {
+      isTappingRef.current = true;
+      setCurrentStep(2);
+      setSubmitState(SubmitState.CONFIRMED);
+      setShowModal(true);
+      releaseTap();
+      return;
+    }
+
+    if ((op === 'addition' || op === 'subtraction') && submitState === SubmitState.READY) {
       isTappingRef.current = true;
       setSubmitState(SubmitState.CONFIRMED);
       setShowModal(true);
@@ -296,7 +311,9 @@ export default function Touchculator() {
     ? HINTS.division[currentStep] ?? HINTS.default
     : selectedOp === 'multiplication'
       ? (multiplicationConfirmed ? HINTS.multiplication.confirmed : HINTS.multiplication.adding)
-      : HINTS.default;
+      : submitState === SubmitState.READY
+        ? HINTS.readyToSubmit
+        : HINTS.default;
 
   return (
     <div className="page touchculator-game-page compact-page">
@@ -323,7 +340,6 @@ export default function Touchculator() {
             className={`circles-area${selectedOp === 'multiplication' && multiplicationConfirmed ? ' multiplication-final' : ''}`}
             data-op={selectedOp}
             data-step={currentStep}
-            style={{ '--answer': question.answer }}
           >
             {selectedOp === 'division' ? (
               Array.from({ length: question.b }, (_, col) => (
@@ -362,21 +378,7 @@ export default function Touchculator() {
           </div>
 
           <div className="tc-submit-zone">
-            {submitState === SubmitState.READY ? (
-              <>
-                <div className="tc-checkmark">✓</div>
-                <button
-                  type="button"
-                  className="big-btn tc-submit-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowModal(true);
-                  }}
-                >
-                  Submeter
-                </button>
-              </>
-            ) : submitState === SubmitState.CONFIRMED ? (
+            {submitState === SubmitState.READY || submitState === SubmitState.CONFIRMED ? (
               <div className="tc-checkmark">✓</div>
             ) : (
               <div className="tc-submit-placeholder" />
