@@ -201,7 +201,7 @@ export default function Touchculator() {
     const op = selectedOpRef.current;
     const targetSteps = getTargetSteps(q, op);
 
-    if (op === 'multiplication' && multiplicationConfirmed) {
+    if (submitState === SubmitState.CONFIRMED) {
       setShowModal(true);
       return;
     }
@@ -263,7 +263,7 @@ export default function Touchculator() {
     }
 
     releaseTap();
-  }, [currentStep, multiplicationConfirmed, releaseTap, submitState]);
+  }, [currentStep, releaseTap, submitState]);
 
   const handleReset = () => {
     setShowModal(false);
