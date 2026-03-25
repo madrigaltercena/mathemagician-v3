@@ -112,6 +112,8 @@
 }
 
 .circles-area {
+  --tc-outline-color: rgba(255, 215, 0, 0.75);
+
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -122,7 +124,6 @@
   background: transparent;
 }
 
-/* Division: circles grouped into columns, stacked top-to-bottom within each */
 .circles-area[data-op="division"] {
   display: flex;
   flex-direction: row;
@@ -138,14 +139,12 @@
   padding: 10px 6px;
 }
 
-/* Dashed outline around each column on step 1 */
 .circles-area[data-op="division"][data-step="1"] .division-col {
-  outline: 3px dashed rgba(255, 215, 0, 0.75);
+  outline: 3px dashed var(--tc-outline-color);
   border-radius: 14px;
   background: rgba(255, 215, 0, 0.05);
 }
 
-/* Multiplication: grid of rows — one row per group, circles laid out left-to-right */
 .circles-area[data-op="multiplication"] {
   display: flex;
   flex-direction: column;
@@ -160,33 +159,11 @@
   justify-content: center;
 }
 
-/* Outlines appear only on the final tap */
 .circles-area.multiplication-final .multiplication-row {
-  outline: 3px dashed rgba(255, 215, 0, 0.75);
+  outline: 3px dashed var(--tc-outline-color);
   border-radius: 14px;
   padding: 10px 12px;
   background: rgba(255, 215, 0, 0.05);
-}
-
-.division-confirm {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.division-answer {
-  font-size: 4rem;
-  font-weight: 900;
-  color: #7bed9f;
-  text-shadow: 0 0 20px rgba(123, 237, 159, 0.6);
-  animation: answerPop 0.3s ease;
-}
-
-@keyframes answerPop {
-  from { transform: scale(0.5); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
 }
 
 .circle {
