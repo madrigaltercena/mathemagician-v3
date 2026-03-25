@@ -118,6 +118,8 @@ export default function Touchculator() {
     if (currentStep === 0) return;
     // Division has a fixed 2-tap confirm flow — no circle transitions
     if (selectedOpRef.current === 'division') return;
+    // Multiplication: when confirmed, outlines are shown but no circle transitions
+    if (selectedOpRef.current === 'multiplication' && confirmed) return;
 
     const q = questionRef.current;
     const op = selectedOpRef.current;
@@ -192,10 +194,6 @@ export default function Touchculator() {
   const handleTap = useCallback(() => {
     if (isTappingRef.current) return;
     if (!questionRef.current || !selectedOpRef.current) return;
-    if (readyToSubmit) {
-      // Multiplication confirm tap needs to get through even when readyToSubmit is true
-      if (!(op === 'multiplication' && confirmed)) return;
-    }
 
     const q = questionRef.current;
     const op = selectedOpRef.current;
@@ -207,7 +205,8 @@ export default function Touchculator() {
       return;
     }
 
-    // Multiplication last group tap: outlines appear, next tap opens modal
+    // Multiplication: last group tap — show outlines + result; next tap opens modal
+    // Fires when currentStep === targetSteps-1 (all b groups just became visible)
     if (op === 'multiplication' && currentStep === targetSteps - 1) {
       isTappingRef.current = true;
       setConfirmed(true);
@@ -216,16 +215,23 @@ export default function Touchculator() {
       return;
     }
 
+    // Division: second tap opens modal directly
+    if (op === 'division' && currentStep === 1) {
+      isTappingRef.current = true;
+      setReadyToSubmit(true);
+      setShowModal(true);
+      setTimeout(() => { isTappingRef.current = false; }, 80);
+      return;
+    }
+
+    // Guard: block taps past the target
     if (currentStep >= targetSteps) return;
 
     isTappingRef.current = true;
 
     setCurrentStep((prev) => {
       const next = prev + 1;
-      if (next === targetSteps) {
-        setReadyToSubmit(true);
-        if (op === 'division') setShowModal(true);
-      }
+      if (next === targetSteps) setReadyToSubmit(true);
       return next;
     });
 
@@ -342,7 +348,7 @@ export default function Touchculator() {
           </div>
 
           <div className="tc-counter">
-            <span className="tc-current">{selectedOp === 'multiplication' && confirmed ? `${targetSteps}/${targetSteps + 1}` : `${currentStep}/${targetSteps}`}</span>
+            <span className="tc-current">{selectedOp === 'multiplication' && confirmed ? `${targetSteps}/${targetSteps}` : `${currentStep}/${targetSteps}`}</span>
             <span className="tc-hint">
               {selectedOp === 'division'
                 ? currentStep === 0 ? 'Confirma as colunas' : 'Submeter resultado'
