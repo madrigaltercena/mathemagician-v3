@@ -145,6 +145,29 @@
   background: rgba(255, 215, 0, 0.05);
 }
 
+/* Multiplication: grid of rows — one row per group, circles laid out left-to-right */
+.circles-area[data-op="multiplication"] {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.multiplication-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Outlines appear only on the final tap */
+.circles-area.multiplication-final .multiplication-row {
+  outline: 3px dashed rgba(255, 215, 0, 0.75);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255, 215, 0, 0.05);
+}
+
 .division-confirm {
   grid-column: 1 / -1;
   display: flex;
