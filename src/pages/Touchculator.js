@@ -16,6 +16,7 @@ const SubmitState = {
 
 const HINTS = {
   default: 'Toque em qualquer zona para avançar',
+  readyToSubmit: 'Toque para submeter resultado',
   division: {
     0: 'Confirma as colunas',
     1: 'Submeter resultado',
@@ -214,6 +215,14 @@ export default function Touchculator() {
       return;
     }
 
+    if ((op === 'addition' || op === 'subtraction') && submitState === SubmitState.READY) {
+      isTappingRef.current = true;
+      setSubmitState(SubmitState.CONFIRMED);
+      setShowModal(true);
+      releaseTap();
+      return;
+    }
+
     if (submitState !== SubmitState.HIDDEN) return;
 
     if (op === 'multiplication' && currentStep === targetSteps - 1) {
@@ -302,7 +311,9 @@ export default function Touchculator() {
     ? HINTS.division[currentStep] ?? HINTS.default
     : selectedOp === 'multiplication'
       ? (multiplicationConfirmed ? HINTS.multiplication.confirmed : HINTS.multiplication.adding)
-      : HINTS.default;
+      : submitState === SubmitState.READY
+        ? HINTS.readyToSubmit
+        : HINTS.default;
 
   return (
     <div className="page touchculator-game-page compact-page">
@@ -367,21 +378,7 @@ export default function Touchculator() {
           </div>
 
           <div className="tc-submit-zone">
-            {submitState === SubmitState.READY ? (
-              <>
-                <div className="tc-checkmark">✓</div>
-                <button
-                  type="button"
-                  className="big-btn tc-submit-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowModal(true);
-                  }}
-                >
-                  Submeter
-                </button>
-              </>
-            ) : submitState === SubmitState.CONFIRMED ? (
+            {submitState === SubmitState.READY || submitState === SubmitState.CONFIRMED ? (
               <div className="tc-checkmark">✓</div>
             ) : (
               <div className="tc-submit-placeholder" />
