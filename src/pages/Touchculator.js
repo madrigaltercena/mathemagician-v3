@@ -158,7 +158,7 @@ export default function Touchculator() {
 
       return next;
     });
-  }, [currentStep]);
+  }, [currentStep, confirmed]);
 
   // ── Transition entering circles to visible after paint ───────────────────
   useEffect(() => {
@@ -253,7 +253,7 @@ export default function Touchculator() {
     }
 
     setTimeout(() => { isTappingRef.current = false; }, 80);
-  }, [currentStep, readyToSubmit, confirmed]);
+  }, [currentStep, confirmed]);
 
   const handleReset = () => {
     setShowModal(false);
