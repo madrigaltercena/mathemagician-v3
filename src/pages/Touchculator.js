@@ -38,7 +38,7 @@ function getVisualCount(question, operation, step) {
     case 'subtraction':
       return Math.max(question.a - step, question.answer);
     default:
-      return 0;
+      throw new Error(`Unknown operation: ${operation}`);
   }
 }
 
@@ -101,19 +101,24 @@ export default function Touchculator() {
   const selectedOpRef = useRef(null);
   const isTappingRef = useRef(false);
   const fadeTimeoutRef = useRef(null);
+  const tapTimeoutsRef = useRef([]);
 
   useEffect(() => { questionRef.current = question; }, [question]);
   useEffect(() => { selectedOpRef.current = selectedOp; }, [selectedOp]);
 
   const releaseTap = useCallback((delay = 80) => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       isTappingRef.current = false;
+      tapTimeoutsRef.current = tapTimeoutsRef.current.filter((id) => id !== timeoutId);
     }, delay);
+    tapTimeoutsRef.current.push(timeoutId);
   }, []);
 
   useEffect(() => {
     return () => {
       if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+      tapTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      tapTimeoutsRef.current = [];
     };
   }, []);
 
@@ -202,6 +207,7 @@ export default function Touchculator() {
 
     if (op === 'division' && currentStep === 1) {
       isTappingRef.current = true;
+      setCurrentStep(2);
       setSubmitState(SubmitState.CONFIRMED);
       setShowModal(true);
       releaseTap();
@@ -323,7 +329,6 @@ export default function Touchculator() {
             className={`circles-area${selectedOp === 'multiplication' && multiplicationConfirmed ? ' multiplication-final' : ''}`}
             data-op={selectedOp}
             data-step={currentStep}
-            style={{ '--answer': question.answer }}
           >
             {selectedOp === 'division' ? (
               Array.from({ length: question.b }, (_, col) => (
