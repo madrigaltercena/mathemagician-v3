@@ -209,6 +209,13 @@ export default function Touchculator() {
     // Fires when currentStep === targetSteps-1 (all b groups just became visible)
     if (op === 'multiplication' && currentStep === targetSteps - 1) {
       isTappingRef.current = true;
+      // Add the last group of circles AND set confirmed atomically
+      const lastGroup = Array.from({ length: q.a }, (_, i) => ({
+        id: `circle-row${currentStep}-${i}-${Date.now()}`,
+        state: 'visible',
+        row: currentStep,
+      }));
+      setCircles((prev) => [...prev, ...lastGroup]);
       setConfirmed(true);
       setReadyToSubmit(true);
       setTimeout(() => { isTappingRef.current = false; }, 80);
