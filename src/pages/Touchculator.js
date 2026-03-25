@@ -25,7 +25,7 @@ function getVisualCount(question, operation, step) {
       return Math.max(question.a - step, question.answer);
     case 'multiplication':
       // Each tap adds one full group of `a` circles
-      return question.a * (step + 1);
+      return question.a * step;
     case 'division':
       // Each tap removes `b` circles, stopping at the quotient (answer)
       return Math.max(question.a - question.b * step, question.answer);
@@ -44,16 +44,26 @@ function getTargetSteps(question, operation) {
     case 'multiplication':
       return question.b;                           // b groups of `a`
     case 'division':
-      return Math.ceil((question.a - question.answer) / question.b); // groups to remove
+      return 2;                          // two taps: confirm groups, then submit
     default:
-      return question.b;
+      return Math.ceil((question.a - question.answer) / question.b); // groups to remove
   }
 }
 
 /** Seed the initial visible circles matching the starting count (0 for add/mul, a for sub/div). */
 function getInitialCircles(question, operation) {
-  const initialCount =
-    operation === 'addition' || operation === 'multiplication' ? 0 : question.a;
+  if (operation === 'division') {
+    // b groups of `answer` circles each, organised in columns
+    const circles = [];
+    let id = 0;
+    for (let col = 0; col < question.b; col++) {
+      for (let row = 0; row < question.answer; row++) {
+        circles.push({ id: `circle-${id++}`, state: 'visible', col });
+      }
+    }
+    return circles;
+  }
+  const initialCount = operation === 'multiplication' ? 0 : question.a;
   return Array.from({ length: initialCount }, (_, i) => ({
     id: `circle-${i}`,
     state: 'visible',
@@ -94,6 +104,10 @@ export default function Touchculator() {
   // ── Sync circle count whenever step changes ──────────────────────────────
   useEffect(() => {
     if (!questionRef.current || !selectedOpRef.current) return;
+    // Guard: skip when step is 0 — initial circles are set directly in startGame
+    if (currentStep === 0) return;
+    // Division has a fixed 2-tap flow (confirm → modal) — no circle transitions
+    if (selectedOpRef.current === 'division') return;
 
     const q = questionRef.current;
     const op = selectedOpRef.current;
@@ -152,7 +166,11 @@ export default function Touchculator() {
     const q = generateTouchculatorQuestion(op);
     setSelectedOp(op);           // state for render
     setQuestion(q);
-    setCurrentStep(0);
+    // Addition/subtraction start at 0 (empty screen); multiplication starts at 1
+    // (so first tap → a circles, not 2a). Guard in the sync effect prevents
+    // the step-1 transition from running on mount for add/sub.
+    const initialStep = op === 'multiplication' ? 1 : 0;
+    setCurrentStep(initialStep);
     setShowModal(false);
     setReadyToSubmit(false);
     setCircles(getInitialCircles(q, op));
@@ -172,7 +190,11 @@ export default function Touchculator() {
     isTappingRef.current = true;
     setCurrentStep((prev) => {
       const next = prev + 1;
-      if (next === targetSteps) setReadyToSubmit(true);
+      if (next === targetSteps) {
+        setReadyToSubmit(true);
+        // Division: second tap opens modal directly, no submit button needed
+        if (op === 'division') setShowModal(true);
+      }
       return next;
     });
 
@@ -235,22 +257,43 @@ export default function Touchculator() {
             <span className="tc-op">{getOperationSymbol(selectedOp)}</span>
             <span className="tc-b">{question.b}</span>
             <span className="tc-eq">=</span>
-            <span className="tc-target">?</span>
+            <span className={`tc-target${selectedOp === 'division' && currentStep >= 1 ? ' tc-target-answer' : ''}`}>
+              {selectedOp === 'division' && currentStep >= 1 ? question.answer : '?'}
+            </span>
           </div>
 
-          <div className="circles-area">
-            {circles.map((circle) => (
-              <div key={circle.id} className={`circle circle-${circle.state}`} />
-            ))}
+          <div className="circles-area" data-op={selectedOp} data-step={currentStep} style={{ '--answer': question.answer }}>
+            {selectedOp === 'division' ? (
+              // Group circles into columns for division display
+              Array.from({ length: question.b }, (_, col) => (
+                <div key={`col-${col}`} className="division-col">
+                  {circles
+                    .filter((c) => c.col === col)
+                    .map((circle) => (
+                      <div key={circle.id} className={`circle circle-${circle.state}`} />
+                    ))}
+                </div>
+              ))
+            ) : (
+              circles.map((circle) => (
+                <div key={circle.id} className={`circle circle-${circle.state}`} />
+              ))
+            )}
           </div>
 
           <div className="tc-counter">
             <span className="tc-current">{currentStep}/{targetSteps}</span>
-            <span className="tc-hint">Toque em qualquer zona para avançar</span>
+            <span className="tc-hint">
+              {selectedOp === 'division'
+                ? currentStep === 0 ? 'Confirma as colunas' : 'Submeter resultado'
+                : 'Toque em qualquer zona para avançar'}
+            </span>
           </div>
 
           <div className="tc-submit-zone">
-            {readyToSubmit ? (
+            {selectedOp === 'division' && readyToSubmit ? (
+              <div className="tc-checkmark">✓</div>
+            ) : readyToSubmit ? (
               <>
                 <div className="tc-checkmark">✓</div>
                 <button

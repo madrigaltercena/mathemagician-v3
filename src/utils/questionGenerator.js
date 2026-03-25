@@ -91,8 +91,8 @@ export function generateTouchculatorQuestion(operation) {
       break;
     case 'division':
       b = randInt(2, 5);
-      answer = randInt(2, 9);        // divisor × quociente = dividendo (todo ≤ 45)
-      a = b * answer;                 // garantido: a = b × answer, nunca quebra
+      answer = randInt(2, 6);        // circles per group — max 6 so cols don't overflow
+      a = b * answer;                 // total circles = groups × per-group
       break;
     default:
       a = randInt(1, 10);
