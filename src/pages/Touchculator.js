@@ -42,7 +42,7 @@ function getTargetSteps(question, operation) {
     case 'subtraction':
       return question.a - question.answer;          // (a - answer) taps to subtract
     case 'multiplication':
-      return question.b;                           // b groups of `a`
+      return question.b;                   // b groups appear; last tap shows outlines, extra tap opens modal
     case 'division':
       return 2;                          // two taps: confirm groups, then submit
     default:
@@ -91,6 +91,7 @@ export default function Touchculator() {
   const [currentStep, setCurrentStep] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [readyToSubmit, setReadyToSubmit] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);       // multiplication: waiting for confirm tap
   const [circles, setCircles] = useState([]);
 
   // Stable refs — no re-render triggers
@@ -182,45 +183,64 @@ export default function Touchculator() {
     setCurrentStep(initialStep);
     setShowModal(false);
     setReadyToSubmit(false);
+    setConfirmed(false);
     setCircles(getInitialCircles(q, op));
     isTappingRef.current = false;
   }, []);
 
   // ── Handle tap ──────────────────────────────────────────────────────────
   const handleTap = useCallback(() => {
-    if (isTappingRef.current) return;           // tap lock
+    if (isTappingRef.current) return;
+    if (!questionRef.current || !selectedOpRef.current) return;
+    if (readyToSubmit) {
+      // Multiplication confirm tap needs to get through even when readyToSubmit is true
+      if (!(op === 'multiplication' && confirmed)) return;
+    }
+
     const q = questionRef.current;
     const op = selectedOpRef.current;
-    if (!q || readyToSubmit) return;
-
     const targetSteps = getTargetSteps(q, op);
+
+    // Multiplication confirm tap: opens modal directly
+    if (op === 'multiplication' && confirmed) {
+      setShowModal(true);
+      return;
+    }
+
+    // Multiplication last group tap: outlines appear, next tap opens modal
+    if (op === 'multiplication' && currentStep === targetSteps - 1) {
+      isTappingRef.current = true;
+      setConfirmed(true);
+      setReadyToSubmit(true);
+      setTimeout(() => { isTappingRef.current = false; }, 80);
+      return;
+    }
+
     if (currentStep >= targetSteps) return;
 
     isTappingRef.current = true;
+
     setCurrentStep((prev) => {
       const next = prev + 1;
       if (next === targetSteps) {
         setReadyToSubmit(true);
-        // Division & multiplication: last tap opens modal directly
-        if (op === 'division' || op === 'multiplication') setShowModal(true);
+        if (op === 'division') setShowModal(true);
       }
       return next;
     });
 
-    // Multiplication: add a new group of `a` circles directly (no sync effect)
+    // Multiplication: add a new group of `a` circles directly
     if (op === 'multiplication') {
-      const nextRow = currentStep; // row index for the new group (0-based)
       const newCircles = Array.from({ length: q.a }, (_, i) => ({
-        id: `circle-row${nextRow}-${i}-${Date.now()}`,
+        id: `circle-row${currentStep}-${i}-${Date.now()}`,
         state: 'entering',
-        row: nextRow,
+        row: currentStep,
       }));
       setCircles((prev) => [...prev, ...newCircles]);
     }
 
-    // Release lock after a short debounce so rapid taps don't double-fire
     setTimeout(() => { isTappingRef.current = false; }, 80);
-  }, [currentStep, readyToSubmit]);
+  }, [currentStep, readyToSubmit, confirmed]);
 
   const handleReset = () => {
     setShowModal(false);
@@ -234,6 +254,7 @@ export default function Touchculator() {
     setCurrentStep(0);
     setShowModal(false);
     setReadyToSubmit(false);
+    setConfirmed(false);
     setCircles([]);
   };
 
@@ -277,13 +298,13 @@ export default function Touchculator() {
             <span className="tc-op">{getOperationSymbol(selectedOp)}</span>
             <span className="tc-b">{question.b}</span>
             <span className="tc-eq">=</span>
-            <span className={`tc-target${(selectedOp === 'division' && currentStep >= 1) || (selectedOp === 'multiplication' && currentStep === targetSteps) ? ' tc-target-answer' : ''}`}>
-              {(selectedOp === 'division' && currentStep >= 1) || (selectedOp === 'multiplication' && currentStep === targetSteps) ? question.answer : '?'}
+            <span className={`tc-target${(selectedOp === 'division' && currentStep >= 1) || (selectedOp === 'multiplication' && confirmed) ? ' tc-target-answer' : ''}`}>
+              {(selectedOp === 'division' && currentStep >= 1) || (selectedOp === 'multiplication' && confirmed) ? question.answer : '?'}
             </span>
           </div>
 
           <div
-            className={`circles-area${selectedOp === 'multiplication' && currentStep === targetSteps ? ' multiplication-final' : ''}`}
+            className={`circles-area${selectedOp === 'multiplication' && confirmed ? ' multiplication-final' : ''}`}
             data-op={selectedOp}
             data-step={currentStep}
             style={{ '--answer': question.answer }}
@@ -304,7 +325,7 @@ export default function Touchculator() {
               Array.from({ length: question.b }, (_, row) => (
                 <div
                   key={`row-${row}`}
-                  className={`multiplication-row${currentStep === targetSteps ? ' multiplication-row-final' : ''}`}
+                  className={`multiplication-row${confirmed ? ' multiplication-row-final' : ''}`}
                 >
                   {circles
                     .filter((c) => c.row === row)
@@ -321,12 +342,12 @@ export default function Touchculator() {
           </div>
 
           <div className="tc-counter">
-            <span className="tc-current">{currentStep}/{targetSteps}</span>
+            <span className="tc-current">{selectedOp === 'multiplication' && confirmed ? `${targetSteps}/${targetSteps + 1}` : `${currentStep}/${targetSteps}`}</span>
             <span className="tc-hint">
               {selectedOp === 'division'
                 ? currentStep === 0 ? 'Confirma as colunas' : 'Submeter resultado'
                 : selectedOp === 'multiplication'
-                ? currentStep === targetSteps ? 'Confirma o resultado' : 'Adiciona um grupo'
+                ? confirmed ? 'Confirma o resultado' : 'Adiciona um grupo'
                 : 'Toque em qualquer zona para avançar'}
             </span>
           </div>
